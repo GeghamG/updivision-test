@@ -1,15 +1,17 @@
-<template>
-  <v-form>
-    <v-container >
-      <v-row>
-        <h1 class="mx-auto mt-3">Registration</h1>
-      </v-row>
-      <v-row>
-        <v-col cols="12" sm="8" offset-sm="2">
+<template class="test">
+  <v-card
+    class="mx-auto mt-12 mb-12"
+    min-width="500"
+  >
+  <v-row>
+    <h1 class="mx-auto mt-12">Register</h1>
+  </v-row>
+  <v-form class="mt-5">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-text-field
             v-model="name"
             :error-messages="nameErrors"
-            :counter="10"
+            prepend-icon="mdi-face"
             name="name"
             label="Name"
             required
@@ -18,10 +20,11 @@
           ></v-text-field>
         </v-col>
 
-        <v-col cols="12" sm="8" offset-sm="2">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-text-field
             v-model="email"
             :error-messages="emailErrors"
+            prepend-icon="mdi-email"
             label="E-mail"
             name="email"
             required
@@ -30,70 +33,73 @@
           ></v-text-field>
         </v-col>
 
-        <v-col cols="12" sm="4" offset-sm="2">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-menu
-            v-model="menu1"
-            :close-on-content-click="false"
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
               <v-text-field
-                v-model="date"
+                v-model="education_start_date"
                 label="Education start date"
+								:error-messages="eduStartDateErrors"
+								@blur="$v.education_start_date.$touch()"
                 prepend-icon="event"
                 v-on="on"
+								readonly
               ></v-text-field>
             </template>
             <v-date-picker 
             v-model="education_start_date" 
-            @input="menu1 = false"
             name="education_start_date"
+            @input="start_date_menu = false"
             ></v-date-picker>
           </v-menu>
         </v-col>
 
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-menu
-            v-model="menu2"
-            :close-on-content-click="false"
-            :return-value.sync="education_end_date"
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
               <v-text-field
-                v-model="date"
+                v-model="education_end_date"
                 label="Education end date"
+								:error-messages="eduEndDateErrors"
+								@blur="$v.education_end_date.$touch()"
                 prepend-icon="event"
                 v-on="on"
+								readonly
               ></v-text-field>
             </template>
             <v-date-picker 
             v-model="education_end_date"
-            @input="menu2 = false"
+            @input="end_date_menu = false"
             name="education_end_date"
             ></v-date-picker>
           </v-menu>
         </v-col>
 
-        <v-col cols="12" sm="8" offset-sm="2">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-text-field
-          v-model="password"
-          :error-messages="passErrors"
-          label="Password"
-          :append-icon="show_pass ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show_pass ? 'text' : 'password'"
-          name="password"
-          @click:append="show_pass = !show_pass"
-          @input="$v.password.$touch()"
-          @blur="$v.password.$touch()"
-        ></v-text-field>
+            v-model="password"
+            :error-messages="passErrors"
+            label="Password"
+            prepend-icon="mdi-lock"
+            :append-icon="show_pass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="show_pass ? 'text' : 'password'"
+            name="password"
+            @click:append="show_pass = !show_pass"
+            @input="$v.password.$touch()"
+            @blur="$v.password.$touch()"
+          ></v-text-field>
         </v-col>
 
-        <v-col cols="12" sm="8" offset-sm="2">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-text-field
             v-model="password_confirmation"
             :error-messages="passConfirmationErrors"
             label="Confirm password"
+            prepend-icon="mdi-lock"
             name="password_confirmation"
             required
             :append-icon="show_pass_confirm ? 'mdi-eye' : 'mdi-eye-off'"
@@ -103,25 +109,30 @@
             @blur="$v.password_confirmation.$touch()"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" sm="8" offset-sm="2">
+        <v-col cols="12" sm="10" offset-sm="1">
           <v-checkbox
             v-model="terms"
             :error-messages="termsErrors"
-            label="I agree terms and conditions"
+            label="I agree to the terms and conditions"
             required
             @change="$v.terms.$touch()"
             @blur="$v.terms.$touch()"
           ></v-checkbox>
         </v-col>
 
-        <v-col cols="12" sm="8" offset-sm="2">
-          <v-btn color="success" class="mr-4" @click="submit">
-            Register
+        <v-col cols="12" sm="10" offset-sm="1">
+          <v-btn 
+          color="deep-purple" 
+          class="mx-auto d-flex white--text v-size--large mb-8" 
+          :rounded=true 
+          @click="submit"
+          >
+            Get started
           </v-btn>
         </v-col>
-      </v-row>
-    </v-container>
   </v-form>
+	<router-view></router-view>
+  </v-card>
 </template>
 
 <script>
@@ -132,7 +143,7 @@
     mixins: [validationMixin],
 
     validations: {
-      name: { required },
+      name: { required, minLength: minLength(2) },
       email: { required, email },
       education_start_date: { required },
       education_end_date: { required },
@@ -157,11 +168,16 @@
       education_start_date: '',
       education_end_date: '',
       terms: false,
-      date: new Date().toISOString().substr(0, 10),
-      menu1: false,
-      menu2: false,
+      start_date_menu: false,
+      end_date_menu: false,
       show_pass: false,
       show_pass_confirm: false,
+			rules: [
+				{ message:'One lowercase letter required.', regex:/[a-z]+/ },
+				{ message:"One uppercase letter required.",  regex:/[A-Z]+/ },
+				{ message:"6 characters minimum.", regex:/.{6,}/ },
+				{ message:"One number required.", regex:/[0-9]+/ }
+			],
     }),
 
     computed: {
@@ -169,6 +185,7 @@
         const errors = []
         if (!this.$v.name.$dirty) return errors
         !this.$v.name.required && errors.push('Name is required.')
+        !this.$v.name.minLength && errors.push('Name must be at least 2 characters.')
         return errors
       },
       emailErrors () {
@@ -181,7 +198,15 @@
       eduStartDateErrors () {
         const errors = []
         if (!this.$v.education_start_date.$dirty) return errors
-        !this.$v.education_start_date.required && errors.push('Name is required.')
+				!this.$v.education_start_date.required && errors.push('Education start date is required.')
+				!(this.$data.education_start_date < this.$data.education_end_date) && errors.push('Education start date must be lesser than start date.')
+        return errors
+      },
+      eduEndDateErrors () {
+        const errors = []
+        if (!this.$v.education_end_date.$dirty) return errors
+        !this.$v.education_end_date.required && errors.push('Education end date is required.')
+				!(this.$data.education_start_date < this.$data.education_end_date) && errors.push('Education end date must be greater than start date.')
         return errors
       },
       passErrors () {
@@ -189,6 +214,11 @@
         if (!this.$v.password.$dirty) return errors
         !this.$v.password.required && errors.push('Password is required')
         !this.$v.password.minLength && errors.push('Password must be at least 6 characters')
+				for (let condition of this.rules) {
+					if (!condition.regex.test(this.password)) {
+						errors.push(condition.message)
+					}
+				}
         return errors
       },
       passConfirmationErrors () {
@@ -215,17 +245,19 @@
 
     methods: {
       submit () {
+				this.$v.$touch()
         if (this.formValidation) {
-          this.$axios.post('https://test-api.updivision.work/api/register', this.$data, {
-            headers: {
-              Accept: 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              "Content-Type": "*",
-						},
-						useCredentails: true
-          }).then(res => {
-						console.log(res)
-          }).catch(err => console.log(err))
+					this.$router.push({ path: '/'})
+          
+          // this.$axios.post('https://test-api.updivision.work/api/register', this.$data, {
+          //   headers: {
+          //     "Accept": 'application/json',
+          //     "Content-Type": "application/json",
+					// 	},
+					// 	useCredentails: true
+          // }).then(res => {
+					// 	console.log(res)
+          // }).catch(err => console.log(err))
         }
       }
     },
