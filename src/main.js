@@ -4,40 +4,24 @@ import vuetify from './plugins/vuetify';
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 
-import Products from './components/Products'
-import Register from './components/Register'
-import Login from './components/Login'
-
-const routes = [
-  { path: '/', component: Products },
-  { path: '/register', component: Register },
-  { path: '/login', component: Login },
-]
+import routes from './routes';
+import store from './store';
 
 const router = new VueRouter({
   routes,
   mode: 'history'
 })
 
-const store = new Vuex.Store({
-  state: {
-    
-  },
-  actions: {
-
-  },
-
-})
-
 Vue.use(VueAxios, axios)
 Vue.use(VueRouter)
+
 Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 new Vue({
   vuetify,
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

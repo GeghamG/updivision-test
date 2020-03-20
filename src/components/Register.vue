@@ -1,12 +1,41 @@
-<template class="test">
-  <v-card
-    class="mx-auto mt-12 mb-12"
-    min-width="500"
-  >
-  <v-row>
-    <h1 class="mx-auto mt-12">Register</h1>
-  </v-row>
-  <v-form class="mt-5">
+<template>
+  <v-content class="register-bg">
+    <v-card
+      class="mx-auto mt-12 mb-12"
+      max-width="600"
+    >
+      <v-row>
+        <h1 class="mx-auto mt-12">Register</h1>
+      </v-row>
+      <v-form class="mt-5">
+        <v-col 
+          v-if="this.$data.errors"
+          cols="12" 
+          sm="10" 
+          offset-sm="1"
+        >
+          <v-alert
+            v-for="err in this.$data.errors" 
+            :key="err[0]"
+            dense
+            outlined
+            type="error"
+          >
+            {{ err[0] }}
+          </v-alert>
+        </v-col>
+
+        <v-col 
+          v-else-if="this.$data.success_msg"
+          cols="12" 
+          sm="10" 
+          offset-sm="1"
+        >
+          <v-alert type="success">
+            {{ this.$data.success_msg }}
+          </v-alert>
+        </v-col>
+
         <v-col cols="12" sm="10" offset-sm="1">
           <v-text-field
             v-model="name"
@@ -41,11 +70,11 @@
               <v-text-field
                 v-model="education_start_date"
                 label="Education start date"
-								:error-messages="eduStartDateErrors"
-								@blur="$v.education_start_date.$touch()"
+                :error-messages="eduStartDateErrors"
+                @blur="$v.education_start_date.$touch()"
                 prepend-icon="event"
                 v-on="on"
-								readonly
+                readonly
               ></v-text-field>
             </template>
             <v-date-picker 
@@ -64,11 +93,11 @@
               <v-text-field
                 v-model="education_end_date"
                 label="Education end date"
-								:error-messages="eduEndDateErrors"
-								@blur="$v.education_end_date.$touch()"
+                :error-messages="eduEndDateErrors"
+                @blur="$v.education_end_date.$touch()"
                 prepend-icon="event"
                 v-on="on"
-								readonly
+                readonly
               ></v-text-field>
             </template>
             <v-date-picker 
@@ -109,6 +138,7 @@
             @blur="$v.password_confirmation.$touch()"
           ></v-text-field>
         </v-col>
+
         <v-col cols="12" sm="10" offset-sm="1">
           <v-checkbox
             v-model="terms"
@@ -123,16 +153,25 @@
         <v-col cols="12" sm="10" offset-sm="1">
           <v-btn 
           color="deep-purple" 
-          class="mx-auto d-flex white--text v-size--large mb-8" 
+          class="mx-auto d-flex white--text v-size--large mb-0" 
           :rounded=true 
           @click="submit"
           >
             Get started
           </v-btn>
         </v-col>
-  </v-form>
-	<router-view></router-view>
-  </v-card>
+
+        <v-col cols="12" sm="10" offset-sm="1">
+          <p class="text-center">
+            Already have an account?
+            <router-link to="/login">
+            Login
+            </router-link>
+          </p>
+        </v-col>
+      </v-form>
+    </v-card>
+  </v-content>
 </template>
 
 <script>
@@ -177,7 +216,9 @@
 				{ message:"One uppercase letter required.",  regex:/[A-Z]+/ },
 				{ message:"6 characters minimum.", regex:/.{6,}/ },
 				{ message:"One number required.", regex:/[0-9]+/ }
-			],
+      ],
+      errors: [],
+      success_msg: ''
     }),
 
     computed: {
@@ -245,21 +286,28 @@
 
     methods: {
       submit () {
-				this.$v.$touch()
-        if (this.formValidation) {
-					this.$router.push({ path: '/'})
-          
-          // this.$axios.post('https://test-api.updivision.work/api/register', this.$data, {
-          //   headers: {
-          //     "Accept": 'application/json',
-          //     "Content-Type": "application/json",
-					// 	},
-					// 	useCredentails: true
-          // }).then(res => {
-					// 	console.log(res)
-          // }).catch(err => console.log(err))
+				// this.$v.$touch()
+        if (this.formValidation) {          
+          this.$axios.post('https://test-api.updivision.work/api/register', this.$data, {
+            headers: {
+              "Accept": 'application/json',
+              "Content-Type": "application/json",
+						},
+						useCredentails: true
+          }).then(() => {
+            this.$data.success_msg = 'You are registered successfully';
+          }).catch((err) => {
+            this.$data.errors = err.response.data.errors;
+          })
         }
       }
     },
   }
 </script>
+
+<style>
+  .register-bg {
+    background-image: url('../assets/register_background.jpg');
+    background-size: cover;
+  }
+</style>
