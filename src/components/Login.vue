@@ -78,7 +78,7 @@
 <script>
   import { validationMixin } from 'vuelidate'
   import { required, minLength, email } from 'vuelidate/lib/validators'
-	import { mapState } from 'vuex'
+	import { mapGetters } from 'vuex'
 	
 	export default {
 		mixins: [validationMixin],
@@ -109,9 +109,7 @@
       formValidation() {
         return !this.emailErrors.length && !this.passErrors.length
 			},
-			...mapState({
-				accessToken: state => state.user.accessToken
-			})
+			...mapGetters(['accessToken'])
 		},
 		data: () => ({
       email: '',
@@ -127,17 +125,12 @@
 		}),
 		methods: {
       login () {
-				console.log(this.$store.accessToken);
-				
-				this.$v.$touch()
-        if (this.formValidation) {
-          this.$store.dispatch('login', {
-						email: this.$data.email,
-						password: this.$data.password
-					}).then((res) => {
-						res
-            // this.$router.push({ path: '/'})
-          }).catch(err => {
+        if (this.$v.$touch() || this.formValidation) {
+					this.$store.dispatch('login', this.$data)
+					.then(() => {
+            this.$router.push({ name: 'products'})
+					})
+					.catch(err => {
 						if (err.response.data.errors) {
 							this.$data.errors = err.response.data.errors
 						} else if (err.response.data.message) {

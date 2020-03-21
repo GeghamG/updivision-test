@@ -3,9 +3,9 @@ import Register from '../components/Register'
 import Login from '../components/Login'
 
 const routes = [
-  { path: '/', component: Products },
-  { path: '/register', component: Register },
-  { path: '/login', component: Login },
+  { path: '/',         name: 'products', component: Products },
+  { path: '/register', name: 'register', component: Register },
+  { path: '/login',    name: 'login', component: Login },
 ]
 
 export default routes

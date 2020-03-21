@@ -16,12 +16,14 @@ const router = new VueRouter({
 Vue.use(VueAxios, axios)
 Vue.use(VueRouter)
 
-Vue.prototype.$axios = axios
+axios.defaults.baseURL = 'https://test-api.updivision.work/api/'
+
 Vue.config.productionTip = false
 
 new Vue({
   vuetify,
   router,
   store,
+  axios,
   render: h => h(App)
 }).$mount('#app')

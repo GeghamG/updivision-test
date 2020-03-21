@@ -155,7 +155,7 @@
           color="deep-purple" 
           class="mx-auto d-flex white--text v-size--large mb-0" 
           :rounded=true 
-          @click="submit"
+          @click="register"
           >
             Get started
           </v-btn>
@@ -285,10 +285,10 @@
     },
 
     methods: {
-      submit () {
-				// this.$v.$touch()
+      register () {
+				this.$v.$touch()
         if (this.formValidation) {          
-          this.$axios.post('https://test-api.updivision.work/api/register', this.$data, {
+          this.$store.dispatch('register', this.$data, {
             headers: {
               "Accept": 'application/json',
               "Content-Type": "application/json",
