@@ -11,33 +11,36 @@
 			:sm="12 / products.length"
 		>
 			<v-card
-				class="mt-12 col-8 offset-2"
+				class="mt-12 col-10 offset-2"
 			>
 				<v-row class="width-90 mx-auto">
+					<v-hover v-slot:default="{ hover }">
 					<v-card
-						class="mt-12 mt-n10  px-0 py-0"
-						elevation="10"
+						:elevation="hover ? 10 : 3"
+						:class="{ 'on-hover': hover }"
+						class="mt-12 mt-n10 px-0 py-0"
 					>
 						<v-img
 							:src="imgBasePath"
 							class="card-img"
 						></v-img>
 					</v-card>
+					</v-hover>	
 				</v-row>
-				<h2 class="mx-auto py-12 text-center">{{ product.name }}</h2>
+				<h3 class="mx-auto width-90 py-6 text-center color-purple">{{ product.name }}</h3>
 				<v-row class="width-90 mx-auto">
-					<v-col sm="6" class="d-flex align-items-center">
+					<v-col sm="6" class="d-flex align-items-center pl-0">
 						<h3 class="price font-weight-light">$ {{ product.price }}</h3>
 					</v-col>
-					<v-col sm="6" class="d-flex justify-end">
-						<v-btn :rounded=true color="error" @click="openDetails">Details</v-btn>
+					<v-col sm="6" class="d-flex justify-end pr-0">
+						<v-btn :rounded=true class="btn-pink" @click="openDetails($event, product)">Details</v-btn>
 					</v-col>
 				</v-row>
 			</v-card>
 		</v-col>
 		</v-row>
 		
-		<div class="text-center">
+		<div class="text-center mt-12">
 			<v-pagination
 				v-model="page"
 				:length="length"
@@ -48,22 +51,35 @@
 			></v-pagination>
 		</div>
 		
-    <v-dialog v-model="detailsPopup" persistent max-width="800">
-      <v-card class="d-flex justify-space-between popup-card" >
-				<div class="flex-grow-1">
+		<v-dialog v-model="detailsPopup" persistent max-width="1000">
+			<div v-if="this.$data.product" class="d-flex justify-space-between popup-card" >
+				<div class="m-5">
 					<v-img
-						class="popup-img"
+						class="popup-img mx-5 my-5"
 						:src="imgBasePath"
 					></v-img>
 				</div>
-				<div class="flex-grow-1">
-					<span class="group pa-2 close" @click="closeDetails" >
-						<v-icon :x-large="true" color="black" class="close">mdi-close</v-icon>
-					</span>
-					<v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text>
+				<div class="">
+					<v-col class="text-right pr-0 pb-0">
+						<span class="group pa-2 close ml-auto" @click="closeDetails" >
+							<v-icon :x-large="true" color="black" class="close">mdi-close</v-icon>
+						</span>
+					</v-col>
+					<v-col class="mb-4 pr-8 pt-0">
+						<h1 class="mb-3 color-purple mt-0">{{ this.$data.product.name }}</h1>
+						<h3 class="mb-12 color-purple">$ {{ this.$data.product.price }}</h3>
+					</v-col>
+					<v-col class="mb-4 pr-8">
+						<span>Description</span>
+						<hr class="details-hr mt-2 mb-3 pr-8">
+						<span>{{ this.$data.product.description }}</span>
+						<div>
+							<v-btn :prepend-icon="'fa-edit'" rounded class="mt-12 btn-pink" >Add to Cart</v-btn>
+						</div>
+					</v-col>
 				</div>
-      </v-card>
-    </v-dialog>
+			</div>
+		</v-dialog>
 	</v-content>
 </v-container>
 </template>
@@ -85,6 +101,7 @@
 		},
 		data: () => ({
 			detailsPopup: false,
+			singleProduct: {},
 			length: 3,
 			page: 1,
 			totalVisible: 0,
@@ -97,22 +114,23 @@
 			closeDetails() {
 				this.$data.detailsPopup = false
 			},
-			openDetails() {
+			openDetails(event, product) {
+				this.$data.product = product
 				this.$data.detailsPopup = true
+			},
+			getProducts () {
+				this.$store.dispatch('getProducts', 2)
+				.then((res) => {
+					console.log(res);
+				})
+				.catch(({response}) => {
+					if (response.data.errors) {
+						this.$data.errors = response.data.errors
+					} else if (response.data.message) {
+						this.$data.errors = [[response.data.message]]
+					}
+				})
 			}
-      // getProducts () {
-			// 	this.$store.dispatch('getProducts', 2)
-			// 	.then((res) => {
-			// 		console.log(res);
-			// 	})
-			// 	.catch(({response}) => {
-			// 		if (response.data.errors) {
-			// 			this.$data.errors = response.data.errors
-			// 		} else if (response.data.message) {
-			// 			this.$data.errors = [[response.data.message]]
-			// 		}
-			// 	})
-      // }
 		}
 	}
 </script>
@@ -122,24 +140,47 @@
 		max-width: 80%;
 	}
 	.card-img {
-		height: 500px;
-		border-radius: 5px;
+		height: 300px;
 	}
 	.width-90 {
 		width: 90%;
 	}
 	.price {
-    line-height: 2;
+		line-height: 2;
 	}
 	.popup-card {
 		overflow: hidden;
+		border: 10px solid black;
+		border-radius: unset;
+		background-color: #fff;
+	}
+	.popup-card > * {
+		width: 50%;
 	}
 	.popup-img {
-    width: 400px;
-    height: 480px;
+		height: calc(100% - 40px);
 	}
 	.close {
 		font-weight: bold;
 		cursor: pointer;
+	}
+	.color-purple {
+		color: #e91e63!important;
+	}
+	.details-hr {
+		height: 1px;
+		border: none;
+		background-color: darkgoldenrod;
+	}
+	.btn-pink {
+		background: #e91e63!important;
+		color: #fff!important;
+	}
+	.mt-n10.v-card {
+		transition: .4s;
+		cursor: pointer;
+	}
+	.mt-n10.v-card:not(.on-hover) {
+		opacity: 0.95;
 	}
 </style>

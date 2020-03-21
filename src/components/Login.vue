@@ -57,6 +57,7 @@
 				<v-btn text 
 				@click="login"
 				:x-large="true"
+				:loading="loading"
 				class="mx-auto d-flex mb-0">
 					Lets Go
 				</v-btn>
@@ -76,15 +77,15 @@
 </template>
 
 <script>
-  import { validationMixin } from 'vuelidate'
-  import { required, minLength, email } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate'
+import { required, minLength, email } from 'vuelidate/lib/validators'
 	import { mapGetters } from 'vuex'
 	
 	export default {
 		mixins: [validationMixin],
 		validations: {
-		email: { required, email },
-		password: { required, minLength: minLength(6) },
+			email: { required, email },
+			password: { required, minLength: minLength(6) },
 		},
 		computed: {
 			emailErrors () {
@@ -94,27 +95,28 @@
 				!this.$v.email.required && errors.push('E-mail is required')  
 				return errors
 			},
-      passErrors () {
-        const errors = []
-        if (!this.$v.password.$dirty) return errors
-        !this.$v.password.required && errors.push('Password is required')
-        !this.$v.password.minLength && errors.push('Password must be at least 6 characters')
+            passErrors () {
+                const errors = []
+                if (!this.$v.password.$dirty) return errors
+                !this.$v.password.required && errors.push('Password is required')
+                !this.$v.password.minLength && errors.push('Password must be at least 6 characters')
 				for (let condition of this.rules) {
 					if (!condition.regex.test(this.password)) {
 						errors.push(condition.message)
 					}
 				}
-        return errors
-      },
-      formValidation() {
-        return !this.emailErrors.length && !this.passErrors.length
-			},
-			...mapGetters(['accessToken'])
-		},
+                return errors
+            },
+            formValidation() {
+                return !this.emailErrors.length && !this.passErrors.length
+            },
+            ...mapGetters(['accessToken'])
+        },
 		data: () => ({
-      email: '',
-      password: '',
-      show_pass: false,
+			loading: false,
+			email: '',
+			password: '',
+			show_pass: false,
 			rules: [
 				{ message:'One lowercase letter required.', regex:/[a-z]+/ },
 				{ message:"One uppercase letter required.",  regex:/[A-Z]+/ },
@@ -124,11 +126,12 @@
 			errors: []
 		}),
 		methods: {
-      login () {
-        if (this.$v.$touch() || this.formValidation) {
+			login () {
+				if (this.$v.$touch() || this.formValidation) {
+					this.$data.loading = true
 					this.$store.dispatch('LOGIN', this.$data)
 					.then(() => {
-            this.$router.push('/')
+						this.$router.push('/')
 					})
 					.catch(err => {
 						if (err.response.data.errors) {
@@ -137,25 +140,25 @@
 							this.$data.errors = [[err.response.data.message]]
 						}
 					})
-        }
-      }
+				}
+			}
 		}
 	}
 </script>
 
 <style>
-	.fixed {
-		min-width: 80%;
-    background: #9b39b3;
-    color: #fff;
-    border-radius: 6px;
-    margin-top: -60px!important;
-	}
-	.mt-30 {
-    margin-top: 120px!important;
-	}
-  .login-bg {
-    background-image: url('../assets/login_background.jpg');
-    background-size: cover;
-  }
+    .fixed {
+        min-width: 80%;
+        background: #9b39b3;
+        color: #fff;
+        border-radius: 6px;
+        margin-top: -60px!important;
+    }
+    .mt-30 {
+        margin-top: 120px!important;
+    }
+    .login-bg {
+        background-image: url('../assets/login_background.jpg');
+        background-size: cover;
+    }
 </style>

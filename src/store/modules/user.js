@@ -14,15 +14,9 @@ export default {
 		}
 	},
 	actions: {
-		LOGIN: ({commit, state}, payload) => {
+		LOGIN: ({commit, state}, {email, password}) => {
 			return new Promise((resolve, reject) => {
-				axios.post('login', payload, {
-					headers: {
-						"Accept": 'application/json',
-						"Content-Type": "application/json",
-					},
-					useCredentails: true
-				})
+				axios.post('login', {email, password})
 				.then(res => {
 					localStorage.setItem('user-token', res.data.accessToken)
 					commit('setAccessToken', res.data.accessToken)
@@ -38,26 +32,14 @@ export default {
 		REGISTER: ({commit}, payload) => {
 			commit
 			return new Promise((resolve, reject) => {
-				axios.post('register', payload, {
-					headers: {
-						"Accept": 'application/json',
-						"Content-Type": "application/json",
-					},
-					useCredentails: true
-				})
+				axios.post('register', payload)
 				.then(res => resolve(res))
 				.catch(err => reject(err))
 			})
 		},
-		LOGOUT: ({commit}, payload) => {
+		LOGOUT: ({commit}) => {
 			return new Promise((resolve, reject) => {
-				axios.post('logout', payload, {
-					headers: {
-						"Accept": 'application/json',
-						"Content-Type": "application/json",
-					},
-					useCredentails: true
-				})
+				axios.post('logout')
 				.then(res => {
 					localStorage.removeItem('user-token', '')
 					commit('setAccessToken' ,'')

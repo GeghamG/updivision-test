@@ -13,13 +13,7 @@ export default {
 	actions: {
 		getProducts: ({commit}) => {
 			return new Promise((resolve, reject) => {
-				axios.get('products/paginate', {
-					headers: {
-						"Accept": 'application/json',
-						"Content-Type": "application/json",
-					},
-					useCredentails: true
-				})
+				axios.get('products/paginate')
 				.then(res => {
 					commit('setProducts', res.data.data)
 					resolve(res)
