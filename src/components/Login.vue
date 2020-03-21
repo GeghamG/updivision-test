@@ -126,9 +126,9 @@
 		methods: {
       login () {
         if (this.$v.$touch() || this.formValidation) {
-					this.$store.dispatch('login', this.$data)
+					this.$store.dispatch('LOGIN', this.$data)
 					.then(() => {
-            this.$router.push({ name: 'products'})
+            this.$router.push('/')
 					})
 					.catch(err => {
 						if (err.response.data.errors) {

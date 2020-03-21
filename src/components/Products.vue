@@ -11,15 +11,28 @@
 			:sm="12 / products.length"
 		>
 			<v-card
-				class="mt-12"
+				class="mt-12 col-8 offset-2"
 			>
-				<v-row class="img-row mx-auto">
-					<v-img
-						:src="imgBasePath"
-						class="card-img mx-auto mt-n10"
-					></v-img>
+				<v-row class="width-90 mx-auto">
+					<v-card
+						class="mt-12 mt-n10  px-0 py-0"
+						elevation="10"
+					>
+						<v-img
+							:src="imgBasePath"
+							class="card-img"
+						></v-img>
+					</v-card>
 				</v-row>
-				<h1 class="mx-auto py-12 text-center">{{ product.name }}</h1>
+				<h2 class="mx-auto py-12 text-center">{{ product.name }}</h2>
+				<v-row class="width-90 mx-auto">
+					<v-col sm="6" class="d-flex align-items-center">
+						<h3 class="price font-weight-light">$ {{ product.price }}</h3>
+					</v-col>
+					<v-col sm="6" class="d-flex justify-end">
+						<v-btn :rounded=true color="error" @click="openDetails">Details</v-btn>
+					</v-col>
+				</v-row>
 			</v-card>
 		</v-col>
 		</v-row>
@@ -27,15 +40,30 @@
 		<div class="text-center">
 			<v-pagination
 				v-model="page"
-				:circle="circle"
-				:disabled="disabled"
 				:length="length"
-				:next-icon="nextIcon"
-				:prev-icon="prevIcon"
+				next-icon="mdi-chevron-right"
+				prev-icon="mdi-chevron-left"
 				:page="page"
 				:total-visible="totalVisible"
 			></v-pagination>
 		</div>
+		
+    <v-dialog v-model="detailsPopup" persistent max-width="800">
+      <v-card class="d-flex justify-space-between popup-card" >
+				<div class="flex-grow-1">
+					<v-img
+						class="popup-img"
+						:src="imgBasePath"
+					></v-img>
+				</div>
+				<div class="flex-grow-1">
+					<span class="group pa-2 close" @click="closeDetails" >
+						<v-icon :x-large="true" color="black" class="close">mdi-close</v-icon>
+					</span>
+					<v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text>
+				</div>
+      </v-card>
+    </v-dialog>
 	</v-content>
 </v-container>
 </template>
@@ -47,9 +75,8 @@
 		mounted() {
 			this.$store.dispatch('getProducts')
 			.then(res => {
-				console.log(res.data);
-				
 				this.products = res.data.data
+				console.log(res.data);
 			})
 			.catch(err => console.log(err))
 		},
@@ -57,22 +84,22 @@
 			...mapGetters(['accessToken'])
 		},
 		data: () => ({
-			circle: false,
-			disabled: false,
+			detailsPopup: false,
 			length: 3,
-			nextIcon: 'navigate_next',
-			nextIcons: ['mdi-chevron-right', 'mdi-arrow-right', 'mdi-menu-right'],
-			prevIcon: 'navigate_before',
-			prevIcons: ['mdi-chevron-left', 'mdi-arrow-left', 'mdi-menu-left'],
-			page: 2,
-			totalVisible: 2,
-
+			page: 1,
+			totalVisible: 0,
 			per_page: 2,
 			products: [],
 			errors: [],
 			imgBasePath: 'https://cdn.vuetifyjs.com/images/cards/sunshine.jpg', // 'https://test-api.updivision.work/api/images/'
 		}),
 		methods: {
+			closeDetails() {
+				this.$data.detailsPopup = false
+			},
+			openDetails() {
+				this.$data.detailsPopup = true
+			}
       // getProducts () {
 			// 	this.$store.dispatch('getProducts', 2)
 			// 	.then((res) => {
@@ -98,7 +125,21 @@
 		height: 500px;
 		border-radius: 5px;
 	}
-	.img-row {
-		width: calc(100% - 40px);
+	.width-90 {
+		width: 90%;
+	}
+	.price {
+    line-height: 2;
+	}
+	.popup-card {
+		overflow: hidden;
+	}
+	.popup-img {
+    width: 400px;
+    height: 480px;
+	}
+	.close {
+		font-weight: bold;
+		cursor: pointer;
 	}
 </style>

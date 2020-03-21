@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export default {
 	state: {
-		accessToken: localStorage.getItem('user-token') || null
+		accessToken: localStorage.getItem('user-token')
 	},
 	getters: {
 		accessToken: state => state.accessToken,
@@ -14,8 +14,7 @@ export default {
 		}
 	},
 	actions: {
-		login: ({commit}, payload) => {
-			commit
+		LOGIN: ({commit, state}, payload) => {
 			return new Promise((resolve, reject) => {
 				axios.post('login', payload, {
 					headers: {
@@ -25,13 +24,18 @@ export default {
 					useCredentails: true
 				})
 				.then(res => {
-          localStorage.setItem('user-token', res.data.accessToken)
+					localStorage.setItem('user-token', res.data.accessToken)
+					commit('setAccessToken', res.data.accessToken)
+					axios.defaults.headers.common["Authorization"] = "Bearer " + state.accessToken;
 					resolve(res)
 				})
-				.catch(err => reject(err))
+				.catch(err => {
+					localStorage.removeItem('usre-token')
+					reject(err)
+				})
 			})
 		},
-		register: ({commit}, payload) => {
+		REGISTER: ({commit}, payload) => {
 			commit
 			return new Promise((resolve, reject) => {
 				axios.post('register', payload, {
@@ -45,21 +49,25 @@ export default {
 				.catch(err => reject(err))
 			})
 		},
-		logout: ({getters}, payload) => {
+		LOGOUT: ({commit}, payload) => {
 			return new Promise((resolve, reject) => {
 				axios.post('logout', payload, {
 					headers: {
 						"Accept": 'application/json',
 						"Content-Type": "application/json",
-						"Authorization": "Bearer " + getters.accessToken,
 					},
 					useCredentails: true
 				})
 				.then(res => {
-          localStorage.setItem('user-token', null)
+					localStorage.removeItem('user-token', '')
+					commit('setAccessToken' ,'')
 					resolve(res)
 				})
-				.catch(err => reject(err))
+				.catch(err =>{
+					localStorage.removeItem('user-token', '')
+					commit('setAccessToken' ,'')
+					reject(err)
+				})
 			})
 		}
 	}

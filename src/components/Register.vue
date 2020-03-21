@@ -288,7 +288,7 @@
       register () {
 				this.$v.$touch()
         if (this.formValidation) {          
-          this.$store.dispatch('register', this.$data, {
+          this.$store.dispatch('REGISTER', this.$data, {
             headers: {
               "Accept": 'application/json',
               "Content-Type": "application/json",
